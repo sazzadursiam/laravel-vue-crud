@@ -1,17 +1,17 @@
-import { createRouter, createWebHistory} from "vue-router";
-import UserIndex from "../pages/Users/Index.vue";
+import { createRouter, createWebHistory } from 'vue-router';
+import UserIndex from '../pages/Users/Index.vue';
 
 const routes = [
     {
-        path: '/users',
+        path: '/',
         name: 'users.index',
-        component: UserIndex
+        component: UserIndex,
     }
 ];
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
+    routes,
 });
 
 export default router;

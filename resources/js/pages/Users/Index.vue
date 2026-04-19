@@ -1,16 +1,16 @@
 <template>
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">Users Management</h3>
+            <h4 class="mb-0">User Management</h4>
         </div>
 
         <div class="card-body">
             <div
                 v-if="alert.message"
                 class="alert"
-                :class=" `alert-${alert.type}`"
-
-                {{ alert.message }}>
+                :class="`alert-${alert.type}`"
+            >
+                {{ alert.message }}
             </div>
 
             <UserForm
@@ -28,16 +28,14 @@
                 @edit-user="editUser"
                 @delete-user="deleteUser"
             />
-
         </div>
-
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import UserForm from '../../components/UserForm.vue';
-import UserTable from '../../components/UserTable.vue';
+import UserForm from '../../components/users/UserForm.vue';
+import UserTable from '../../components/users/UserTable.vue';
 import userService from '../../services/userService';
 
 const users = ref([]);
@@ -53,7 +51,7 @@ const form = ref({
 const errors = ref({});
 const alert = ref({
     type: 'success',
-    'message': ''
+    message: '',
 });
 
 const fetchUsers = async () => {
@@ -61,31 +59,32 @@ const fetchUsers = async () => {
         const response = await userService.getUsers();
         users.value = response.data.data;
     } catch (error) {
-        console.error('Error fetching users:', error);
         showAlert('danger', 'Failed to load users');
     }
 };
+
 const saveUser = async () => {
     errors.value = {};
 
     try {
         if (editMode.value) {
             await userService.updateUser(editUserId.value, form.value);
-            showAlert('success', 'User updated successfully!');
+            showAlert('success', 'User updated successfully');
         } else {
             await userService.createUser(form.value);
-            showAlert('success', 'User added successfully!');
+            showAlert('success', 'User created successfully');
         }
+
         resetForm();
         fetchUsers();
     } catch (error) {
-        console.error('Error saving user:', error);
         if (error.response?.status === 422) {
             errors.value = error.response.data.errors || {};
+        } else {
+            showAlert('danger', 'Something went wrong');
         }
-        showAlert('danger', 'Failed to save user');
     }
-}
+};
 
 const editUser = (user) => {
     editMode.value = true;
@@ -98,21 +97,20 @@ const editUser = (user) => {
     };
 
     errors.value = {};
-    alert.value.message = '';
-}
+};
 
-const deleteUser = async (userId) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+const deleteUser = async (id) => {
+    const confirmed = confirm('Are you sure you want to delete this user?');
+    if (!confirmed) return;
 
     try {
-        await userService.deleteUser(userId);
-        showAlert('success', 'User deleted successfully!');
+        await userService.deleteUser(id);
+        showAlert('success', 'User deleted successfully');
         fetchUsers();
     } catch (error) {
-        console.error('Error deleting user:', error);
-        showAlert('danger', 'Failed to delete user');
+        showAlert('danger', 'Delete failed');
     }
-}
+};
 
 const resetForm = () => {
     form.value = {
@@ -124,16 +122,15 @@ const resetForm = () => {
     editMode.value = false;
     editUserId.value = null;
     errors.value = {};
-    alert.value.message = '';
-}
+};
 
 const showAlert = (type, message) => {
-    alert.value.type = type;
-    alert.value.message = message;
+    alert.value = { type, message };
+
     setTimeout(() => {
         alert.value.message = '';
     }, 3000);
-}
+};
 
 onMounted(() => {
     fetchUsers();
