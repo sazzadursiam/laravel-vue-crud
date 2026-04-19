@@ -34,7 +34,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import UserForm from '../../components/users/UserForm.vue';
+// import UserForm from '../../components/users/UserForm.vue';
+import UserForm from '@/components/users/UserForm.vue';
 import UserTable from '../../components/users/UserTable.vue';
 import userService from '../../services/userService';
 
