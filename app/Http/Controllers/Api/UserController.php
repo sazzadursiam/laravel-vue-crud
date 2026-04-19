@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,27 +18,24 @@ class UserController extends Controller
      */
     public function index()
     {
-        return response()->json(User::latest()->get());
-    }
+        $users = User::latest()->get();
+
+        return UserResource::collection($users);    }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-        ]);
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
+
         return response()->json([
             'message' => 'User created successfully',
-            'user' => $user
+            'data' => new UserResource($user),
         ], 201);
     }
 
@@ -44,30 +44,28 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json($user);
+        return new UserResource($user);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $validated = $request->validate([
-            'name' => 'required',
-            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => 'nullable|min:6',
-        ]);
         $data = [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
+            'name' => $request->name,
+            'email' => $request->email,
         ];
-        if (!empty($validated['password'])) {
-            $data['password'] = Hash::make($validated['password']);
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
         }
+
         $user->update($data);
+
         return response()->json([
             'message' => 'User updated successfully',
-            'user' => $user
+            'data' => new UserResource($user),
         ]);
     }
 
