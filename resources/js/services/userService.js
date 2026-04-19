@@ -9,8 +9,8 @@ const api = axios.create({
 });
 
 export default {
-    getUsers() {
-        return api.get('/users');
+    getUsers(params = {}) {
+        return api.get('/users', { params });
     },
     getUser(id) {
         return api.get(`/users/${id}`);

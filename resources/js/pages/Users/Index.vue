@@ -1,7 +1,13 @@
 <template>
     <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0">User Management</h4>
+            <button
+                class="btn btn-light btn-sm"
+                @click="openCreateModal"
+            >
+                Add User
+            </button>
         </div>
 
         <div class="card-body">
@@ -13,35 +19,67 @@
                 {{ alert.message }}
             </div>
 
-            <UserForm
-                :form="form"
-                :edit-mode="editMode"
-                :errors="errors"
-                @submit-form="saveUser"
-                @cancel-edit="resetForm"
-            />
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input
+                        v-model="search"
+                        type="text"
+                        class="form-control"
+                        placeholder="Search users by name or email"
+                        @input="handleSearch"
+                    >
+                </div>
+            </div>
 
-            <hr>
+<!--            <hr>-->
 
             <UserTable
                 :users="users"
-                @edit-user="editUser"
+                @edit-user="openEditModal"
                 @delete-user="deleteUser"
+            />
+
+            <UserPagination
+                :meta="meta"
+                @change-page="changePage"
             />
         </div>
     </div>
+
+    <UserModal
+        :form="form"
+        :edit-mode="editMode"
+        :edit-user-id="editUserId"
+        :errors="errors"
+        @submit-form="saveUser"
+        @cancel-form="resetForm"
+    />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-// import UserForm from '../../components/users/UserForm.vue';
-import UserForm from '@/components/users/UserForm.vue';
+import {Modal} from "bootstrap";
 import UserTable from '../../components/users/UserTable.vue';
+import UserModal from '../../components/users/UserModal.vue';
+import UserPagination from "../../components/users/UserPagination.vue";
 import userService from '../../services/userService';
 
 const users = ref([]);
+const search = ref('');
 const editMode = ref(false);
 const editUserId = ref(null);
+const errors = ref({});
+
+const meta = ref({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+});
+
+const alert = ref({
+    type: 'success',
+    message: '',
+});
 
 const form = ref({
     name: '',
@@ -49,19 +87,47 @@ const form = ref({
     password: '',
 });
 
-const errors = ref({});
-const alert = ref({
-    type: 'success',
-    message: '',
-});
+let userModal = null;
 
-const fetchUsers = async () => {
+const fetchUsers = async (page = 1) => {
     try {
-        const response = await userService.getUsers();
+        const response = await userService.getUsers({
+            search: search.value,
+            page: page
+        });
         users.value = response.data.data;
+        meta.value = response.data.meta;
     } catch (error) {
         showAlert('danger', 'Failed to load users');
     }
+};
+
+const handleSearch = () => {
+    fetchUsers(1);
+};
+
+const changePage = (page) => {
+    fetchUsers(page);
+}
+
+const openCreateModal = () => {
+    resetForm();
+    editMode.value = false;
+    userModal.show();
+};
+
+const openEditModal = (user) => {
+    editMode.value = true;
+    editUserId.value = user.id;
+
+    form.value = {
+        name: user.name,
+        email: user.email,
+        password: '',
+    };
+
+    errors.value = {};
+    userModal.show();
 };
 
 const saveUser = async () => {
@@ -75,9 +141,9 @@ const saveUser = async () => {
             await userService.createUser(form.value);
             showAlert('success', 'User created successfully');
         }
-
+        userModal.hide();
         resetForm();
-        fetchUsers();
+        fetchUsers(meta.value.current_page);
     } catch (error) {
         if (error.response?.status === 422) {
             errors.value = error.response.data.errors || {};
@@ -87,18 +153,18 @@ const saveUser = async () => {
     }
 };
 
-const editUser = (user) => {
-    editMode.value = true;
-    editUserId.value = user.id;
-
-    form.value = {
-        name: user.name,
-        email: user.email,
-        password: '',
-    };
-
-    errors.value = {};
-};
+// const editUser = (user) => {
+//     editMode.value = true;
+//     editUserId.value = user.id;
+//
+//     form.value = {
+//         name: user.name,
+//         email: user.email,
+//         password: '',
+//     };
+//
+//     errors.value = {};
+// };
 
 const deleteUser = async (id) => {
     const confirmed = confirm('Are you sure you want to delete this user?');
@@ -107,7 +173,12 @@ const deleteUser = async (id) => {
     try {
         await userService.deleteUser(id);
         showAlert('success', 'User deleted successfully');
-        fetchUsers();
+
+        if (users.value.length === 1 && meta.value.current_page > 1) {
+            fetchUsers(meta.value.current_page - 1);
+        } else {
+            fetchUsers(meta.value.current_page);
+        }
     } catch (error) {
         showAlert('danger', 'Delete failed');
     }
@@ -134,6 +205,9 @@ const showAlert = (type, message) => {
 };
 
 onMounted(() => {
+    const modalElement = document.getElementById('userModal');
+    userModal = new Modal(modalElement);
+
     fetchUsers();
 });
 </script>
