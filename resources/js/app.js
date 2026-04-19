@@ -2,6 +2,9 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap';
 
 import { createApp } from 'vue';
-import UserCrud from './components/UserCrud.vue';
+import App from './App.vue';
+import router from './router';
 
-createApp(UserCrud).mount('#app');
+const app = createApp(App);
+app.use(router);
+app.mount('#app');
