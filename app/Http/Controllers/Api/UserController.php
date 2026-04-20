@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -37,10 +38,16 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
+        $photoPath = null;
+
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('users', 'public');
+        }
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'photo' => $photoPath,
         ]);
 
         return response()->json([
@@ -71,6 +78,14 @@ class UserController extends Controller
             $data['password'] = Hash::make($request->password);
         }
 
+        if ($request->hasFile('photo')) {
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $photoPath = $request->file('photo')->store('users', 'public');
+            $data['photo'] = $photoPath;
+        }
+
         $user->update($data);
 
         return response()->json([
@@ -84,6 +99,9 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+            Storage::disk('public')->delete($user->photo);
+        }
         $user->delete();
         return response()->json([
             'message' => 'User deleted successfully'

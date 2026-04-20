@@ -32,7 +32,17 @@ class UpdateUserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId)
             ],
-            'password' => ['nullable', 'string', 'min:6']
+            'password' => ['nullable', 'string', 'min:6'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048']
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'photo.image' => 'The photo must be an image file.',
+            'photo.mimes' => 'The photo must be a jpeg, png, or jpg image.',
+            'photo.max' => 'The photo may not be greater than 2MB.',
         ];
     }
 }
