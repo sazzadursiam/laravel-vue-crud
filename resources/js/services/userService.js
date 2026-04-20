@@ -33,4 +33,7 @@ export default {
     deleteUser(id) {
         return api.delete(`/users/${id}`);
     },
+    toggleStatus(id) {
+        return api.patch(`/users/${id}/toggle-status`);
+    },
 };

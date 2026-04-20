@@ -7,6 +7,7 @@
                     <th>Photo</th>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Status</th>
                     <th width="180">Actions</th>
                 </tr>
             </thead>
@@ -31,11 +32,26 @@
                     <td>{{ user.name }}</td>
                     <td>{{ user.email }}</td>
                     <td>
+                        <span
+                            class="badge"
+                            :class="user.status ? 'bg-success' : 'bg-danger'"
+                        >
+                            {{ user.status ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>
                         <button
                             class="btn btn-warning btn-sm me-2"
                             @click="$emit('edit-user', user)"
                         >
                             Edit
+                        </button>
+
+                        <button
+                            class="btn btn-info btn-sm me-2 text-white"
+                            @click="$emit('toggle-status-user', user)"
+                        >
+                            {{ user.status ? 'Inactive' : 'Active' }}
                         </button>
 
                         <button
@@ -59,6 +75,6 @@ defineProps({
     }
 });
 
-defineEmits(['edit-user', 'delete-user']);
+defineEmits(['edit-user', 'toggle-status-user', 'delete-user']);
 </script>
 

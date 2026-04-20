@@ -63,6 +63,21 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select
+                                v-model="form.status"
+                                class="form-select"
+                                :class="{ 'is-invalid': errors.status }"
+                            >
+                                <option :value="true">Active</option>
+                                <option :value="false">Inactive</option>
+                            </select>
+                            <div v-if="errors.status" class="invalid-feedback d-block">
+                                {{ errors.status[0] }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="photo" class="form-label">Photo</label>
                             <input
                                 type="file"
