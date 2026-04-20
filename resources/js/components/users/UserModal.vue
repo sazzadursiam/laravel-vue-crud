@@ -78,14 +78,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="photo" class="form-label">Photo</label>
+                            <label class="form-label">Photo</label>
                             <input
                                 type="file"
-                                id="photo"
                                 class="form-control"
                                 :class="{ 'is-invalid': errors.photo }"
-                                accept=".jpg, .jpeg, .png"
-                                @change="$emit('photo-changed', $event)">
+                                accept=".jpg,.jpeg,.png"
+                                @change="$emit('photo-change', $event)"
+                            >
                             <div v-if="errors.photo" class="invalid-feedback d-block">
                                 {{ errors.photo[0] }}
                             </div>
@@ -130,7 +130,7 @@ defineProps({
     errors: Object,
     previewImage: String
 });
-defineEmits(['submit-form', 'cancel-form', 'photo-changed']);
+defineEmits(['submit-form', 'cancel-form', 'photo-change']);
 </script>
 
 
