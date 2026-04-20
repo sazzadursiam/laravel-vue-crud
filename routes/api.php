@@ -10,4 +10,5 @@ use Illuminate\Support\Facades\Route;
 //})->middleware('auth:sanctum');
 
 Route::apiResource('users', UserController::class);
+Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus']);
 Route::apiResource('customers', CustomerController::class);

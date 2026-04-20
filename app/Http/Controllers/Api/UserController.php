@@ -48,6 +48,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'photo' => $photoPath,
+            'status' => $request->boolean('status', true),
         ]);
 
         return response()->json([
@@ -72,6 +73,7 @@ class UserController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
+            'status' => $request->boolean('status'),
         ];
 
         if ($request->filled('password')) {
@@ -105,6 +107,18 @@ class UserController extends Controller
         $user->delete();
         return response()->json([
             'message' => 'User deleted successfully'
+        ]);
+    }
+
+    public function toggleStatus(User $user)
+    {
+        $user->update([
+            'status' => !$user->status
+        ]);
+
+        return response()->json([
+            'message' => $user->status ? 'User activated successfully' : 'User deactivated successfully',
+            'data' => new UserResource($user),
         ]);
     }
 }

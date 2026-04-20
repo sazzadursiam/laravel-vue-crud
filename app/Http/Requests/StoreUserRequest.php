@@ -26,7 +26,8 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048']
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'status' => ['nullable', 'boolean'],
         ];
     }
     public function messages(): array

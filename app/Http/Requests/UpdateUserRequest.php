@@ -33,7 +33,8 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($userId)
             ],
             'password' => ['nullable', 'string', 'min:6'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048']
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'status' => ['nullable', 'boolean'],
         ];
     }
 
