@@ -4,6 +4,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
+                    <th>Photo</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th width="180">Actions</th>
@@ -15,6 +16,18 @@
                 </tr>
                 <tr v-for="user in users" :key="user.id">
                     <td>{{ user.id }}</td>
+                    <td>
+                        <img
+                            v-if="user.photo_url"
+                            :src="user.photo_url"
+                            alt="User Photo"
+                            class="rounded"
+                            width="60"
+                            height="60"
+                            style="object-fit: cover;"
+                        >
+                        <span v-else class="text-muted">No Image</span>
+                    </td>
                     <td>{{ user.name }}</td>
                     <td>{{ user.email }}</td>
                     <td>

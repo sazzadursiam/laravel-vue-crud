@@ -12,6 +12,7 @@
                             class="btn-close"
                             data-bs-dismiss="modal"
                             aria-label="Close"
+                            @click="$emit('cancel-form')"
                         ></button>
                     </div>
 
@@ -23,9 +24,10 @@
                                 id="name"
                                 v-model="form.name"
                                 class="form-control"
+                                :class="{ 'is-invalid': errors.name }"
                                 placeholder="Enter name"
                             >
-                            <div v-if="errors.name" class="text-danger small mt-1">
+                            <div v-if="errors.name" class="invalid-feedback d-block">
                                 {{ errors.name[0] }}
                             </div>
                         </div>
@@ -36,9 +38,10 @@
                                 id="email"
                                 v-model="form.email"
                                 class="form-control"
+                                :class="{ 'is-invalid': errors.email }"
                                 placeholder="Enter email"
                             >
-                            <div v-if="errors.email" class="text-danger small mt-1">
+                            <div v-if="errors.email" class="invalid-feedback d-block">
                                 {{ errors.email[0] }}
                             </div>
                         </div>
@@ -51,12 +54,37 @@
                                 id="password"
                                 v-model="form.password"
                                 class="form-control"
+                                :class="{ 'is-invalid': errors.password }"
                                 placeholder="Enter password"
                             >
-                            <div v-if="errors.password" class="text-danger small mt-1">
+                            <div v-if="errors.password" class="invalid-feedback d-block">
                                 {{ errors.password[0] }}
                             </div>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Photo</label>
+                            <input
+                                type="file"
+                                id="photo"
+                                class="form-control"
+                                :class="{ 'is-invalid': errors.photo }"
+                                accept=".jpg, .jpeg, .png"
+                                @change="$emit('photo-changed', $event)">
+                            <div v-if="errors.photo" class="invalid-feedback d-block">
+                                {{ errors.photo[0] }}
+                            </div>
+                        </div>
+
+                        <div v-if="previewImage" class="text-center">
+                            <img
+                                :src="previewImage"
+                                alt="Preview"
+                                class="img-thumbnail"
+                                style="max-height: 180px;"
+                            >
+                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button
@@ -71,7 +99,7 @@
                             type="submit"
                             class="btn btn-primary"
                         >
-                            {{ editMode ? 'Update User' : 'Add User' }}
+                            {{ editMode ? 'Update User' : 'Save User' }}
                         </button>
                     </div>
                 </form>
@@ -84,9 +112,10 @@
 defineProps({
     form: Object,
     editMode: Boolean,
-    errors: Object
+    errors: Object,
+    previewImage: String
 });
-defineEmits(['submit-form', 'cancel-form']);
+defineEmits(['submit-form', 'cancel-form', 'photo-changed']);
 </script>
 
 
